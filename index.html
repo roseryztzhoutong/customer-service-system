@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1194,3 +1195,1243 @@
     </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交付部知识库管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #818CF8;
+            --primary-dark: #3730A3;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --radius: 12px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .nav {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-logo span {
+            font-size: 24px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .nav-tab {
+            padding: 8px 20px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .nav-tab:hover {
+            background: #F1F5F9;
+            color: var(--text);
+        }
+        
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-stats {
+            margin-left: auto;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .nav-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-stats strong {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        /* Page Header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title span {
+            font-size: 20px;
+        }
+        
+        /* Submit Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .form-group label .required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+        
+        .form-group .hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #FAFBFC;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background: white;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #F1F5F9;
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            background: #E2E8F0;
+        }
+        
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* AI Chat */
+        .chat-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 180px);
+            min-height: 500px;
+        }
+        
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+        
+        .chat-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input-area input {
+            flex: 1;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 90%;
+            word-break: break-word;
+        }
+        
+        .message-user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-ai {
+            background: #F1F5F9;
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-system {
+            background: #FEF3C7;
+            color: #92400E;
+            font-size: 13px;
+            text-align: center;
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        
+        .message .meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        
+        .message .copy-btn {
+            font-size: 11px;
+            opacity: 0;
+            margin-top: 6px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: inherit;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .message:hover .copy-btn {
+            opacity: 1;
+        }
+        
+        .message-ai .copy-btn {
+            background: #E2E8F0;
+            color: var(--text-secondary);
+        }
+        
+        /* Knowledge Base Table */
+        .kb-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .kb-table th {
+            background: #F8FAFC;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .kb-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        
+        .kb-table tr:hover {
+            background: #F8FAFC;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-tk { background: #DBEAFE; color: #1D4ED8; }
+        .badge-comic { background: #FCE7F3; color: #BE185D; }
+        .badge-account { background: #FEF3C7; color: #92400E; }
+        .badge-other { background: #F1F5F9; color: #475569; }
+        .badge-software { background: #D1FAE5; color: #065F46; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state span {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 16px;
+        }
+        
+        /* Search */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-card .stat-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .nav-stats { display: none; }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1E293B;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #94A3B8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-logo"><span>🤖</span> 知识库管理系统</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchPage('submit')">📝 提交问题</button>
+            <button class="nav-tab" onclick="switchPage('assistant')">💬 AI 客服助手</button>
+            <button class="nav-tab" onclick="switchPage('knowledge')">📚 知识库</button>
+            <button class="nav-tab" onclick="switchPage('stats')">📊 数据统计</button>
+        </div>
+        <div class="nav-stats">
+            <span>知识库 <strong id="navTotal">0</strong> 条</span>
+            <span>本周新增 <strong id="navWeekNew">0</strong> 条</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        
+        <!-- Page 1: Submit -->
+        <div class="page active" id="page-submit">
+            <div class="page-header">
+                <h1>📝 提交学员问题</h1>
+                <p>遇到学员的常见问题，请花 30 秒记录下来。这些问题会被整理进 AI 客服知识库，后续 AI 就能自动回答啦！你的每一次提交都在帮团队减负 🎯</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><span>📋</span> 问题信息</div>
+                <form id="submitForm" onsubmit="return handleSubmit(event)">
+                    <div class="form-group">
+                        <label>学员问的问题 <span class="required">*</span></label>
+                        <input type="text" id="question" placeholder="例如：AI 挂载后视频发不出去怎么办？" required>
+                        <div class="hint">请用学员的原话或大白话记录，越真实越好</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>你的标准回答 <span class="required">*</span></label>
+                        <textarea id="answer" placeholder="例如：1. 检查网络连接是否正常&#10;2. 重新上传视频&#10;3. 如果还不行，清除缓存后重试&#10;4. 仍有问题请联系技术支持" required></textarea>
+                        <div class="hint">写你平时给学员的回复就好，后续会统一优化成标准话术</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>问题分类 <span class="required">*</span></label>
+                            <select id="category" required>
+                                <option value="">请选择分类</option>
+                                <option value="tk">TK 项目相关</option>
+                                <option value="comic">漫剧制作相关</option>
+                                <option value="software">软件操作问题</option>
+                                <option value="account">账号/登录问题</option>
+                                <option value="payment">付费/退款问题</option>
+                                <option value="ai">AI 挂载相关</option>
+                                <option value="other">其他问题</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>你的名字</label>
+                            <input type="text" id="author" placeholder="选填，方便后续跟进">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>出现频率</label>
+                        <select id="frequency">
+                            <option value="occasional">偶尔（一周 1-2 次）</option>
+                            <option value="frequent" selected>经常（每天都会遇到）</option>
+                            <option value="very-frequent">非常频繁（每天多次）</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>补充说明</label>
+                        <textarea id="notes" placeholder="可选：补充一些上下文，比如这个问题通常在什么场景下出现" style="min-height: 60px;"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">✅ 提交</button>
+                        <button type="reset" class="btn btn-secondary">清空</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Page 2: AI Assistant -->
+        <div class="page" id="page-assistant">
+            <div class="page-header">
+                <h1>💬 AI 客服助手</h1>
+                <p>在左侧输入学员的问题，AI 会根据知识库自动生成回答。右侧是历史对话记录。复制回答直接粘贴到钉钉/微信发给学员即可！</p>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-panel">
+                    <div class="chat-header">🤖 AI 回答区</div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message message-system">
+                            👋 我是交付部 AI 客服助手。请在下方输入学员的问题，我会基于知识库生成回答。<br>
+                            <strong>使用方式</strong>：输入问题 → 复制回答 → 粘贴到钉钉/微信发给学员
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="输入学员的问题..." onkeypress="if(event.key==='Enter')sendChat()">
+                        <button class="btn btn-primary btn-sm" onclick="sendChat()">发送</button>
+                    </div>
+                </div>
+                
+                <div class="chat-panel">
+                    <div class="chat-header">
+                        📋 历史记录
+                        <div style="margin-left: auto;">
+                            <button class="btn btn-secondary btn-sm" onclick="clearChatHistory()">清空</button>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatHistory">
+                        <div class="message message-system">暂无历史记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Knowledge Base -->
+        <div class="page" id="page-knowledge">
+            <div class="page-header">
+                <h1>📚 知识库管理</h1>
+                <p>查看和管理所有已收录的问答知识。支持搜索和分类筛选。</p>
+            </div>
+            
+            <div class="card">
+                <div class="search-bar">
+                    <input type="text" id="kbSearch" placeholder="🔍 搜索问题或回答..." oninput="filterKnowledge()">
+                    <button class="btn btn-secondary" onclick="exportKnowledge()">📥 导出</button>
+                </div>
+                <div class="filter-bar">
+                    <button class="filter-btn active" onclick="filterByCategory('all', this)">全部</button>
+                    <button class="filter-btn" onclick="filterByCategory('tk', this)">TK 项目</button>
+                    <button class="filter-btn" onclick="filterByCategory('comic', this)">漫剧制作</button>
+                    <button class="filter-btn" onclick="filterByCategory('software', this)">软件操作</button>
+                    <button class="filter-btn" onclick="filterByCategory('account', this)">账号问题</button>
+                    <button class="filter-btn" onclick="filterByCategory('ai', this)">AI 挂载</button>
+                    <button class="filter-btn" onclick="filterByCategory('payment', this)">付费/退款</button>
+                    <button class="filter-btn" onclick="filterByCategory('other', this)">其他</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="kb-table" id="kbTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">学员问题</th>
+                                <th style="width: 35%;">标准回答</th>
+                                <th style="width: 10%;">分类</th>
+                                <th style="width: 10%;">频率</th>
+                                <th style="width: 10%;">提交人</th>
+                                <th style="width: 5%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kbTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Stats -->
+        <div class="page" id="page-stats">
+            <div class="page-header">
+                <h1>📊 数据统计</h1>
+                <p>查看知识库积累情况和团队贡献情况。</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">知识库总量</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-sub">所有已收录的问答</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">本周新增</div>
+                    <div class="stat-value" id="statWeekNew">0</div>
+                    <div class="stat-sub">最近 7 天提交</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">贡献人数</div>
+                    <div class="stat-value" id="statContributors">0</div>
+                    <div class="stat-sub">参与提交的同事</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">高频问题</div>
+                    <div class="stat-value" id="statHighFreq">0</div>
+                    <div class="stat-sub">每天都会遇到的</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><span>📈</span> 分类分布</div>
+                <div id="categoryChart" style="display: flex; gap: 12px; flex-wrap: wrap; padding: 10px 0;"></div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><span>🏆</span> 团队贡献排行</div>
+                <div id="contributorList"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== Data Layer ====================
+        const STORAGE_KEY = 'cs_knowledge_base';
+        const CHAT_HISTORY_KEY = 'cs_chat_history';
+        
+        const categoryNames = {
+            'tk': 'TK 项目',
+            'comic': '漫剧制作',
+            'software': '软件操作',
+            'account': '账号问题',
+            'payment': '付费/退款',
+            'ai': 'AI 挂载',
+            'other': '其他'
+        };
+        
+        const frequencyNames = {
+            'occasional': '偶尔',
+            'frequent': '经常',
+            'very-frequent': '非常频繁'
+        };
+
+        // Pre-loaded sample knowledge base
+        const defaultKnowledge = [
+            {
+                id: 'default-1',
+                question: 'AI 挂载后视频发不出去怎么办？',
+                answer: '请按以下步骤排查：\n1. 检查网络连接是否正常，尝试切换 WiFi/流量\n2. 退出账号重新登录\n3. 清除浏览器缓存后重试\n4. 确认视频格式和大小是否符合要求（建议 MP4 格式，不超过 500MB）\n5. 如果以上都不行，请联系技术支持，并提供你的账号信息和错误截图',
+                category: 'ai',
+                frequency: 'very-frequent',
+                author: '系统预置',
+                notes: '这是最常见的 AI 挂载问题，通常和网络或缓存有关',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-2',
+                question: '漫剧制作软件在哪里下载？',
+                answer: '软件安装包已放在钉钉群文件中，请按以下步骤操作：\n1. 打开钉钉，进入学员群\n2. 点击群文件\n3. 搜索"漫剧制作工具包"\n4. 下载最新版本的安装包\n5. 解压后双击安装，按提示完成即可\n\n⚠️ 注意：安装前请先关闭杀毒软件，避免误报拦截。安装完成后记得重新开启。',
+                category: 'software',
+                frequency: 'very-frequent',
+                author: '系统预置',
+                notes: '',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-3',
+                question: 'TK 开店流程是什么？需要准备什么材料？',
+                answer: 'TK 开店需要准备以下材料：\n1. 身份证正反面照片\n2. 手机号码（需能正常接收验证码）\n3. 邮箱地址\n4. 收款银行卡信息\n\n开店步骤：\n1. 下载 TikTok Shop 卖家端 APP\n2. 使用手机号注册账号\n3. 选择"个人入驻"或"企业入驻"\n4. 按提示上传材料\n5. 等待审核（通常 1-3 个工作日）\n6. 审核通过后即可上架商品\n\n详细教程请查看录播课第 3 章节。',
+                category: 'tk',
+                frequency: 'frequent',
+                author: '系统预置',
+                notes: '',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-4',
+                question: '漫剧制作的完整流程是什么？',
+                answer: '漫剧制作流程分为以下步骤：\n\n【第一步：选题】选择一个有吸引力的故事主题\n【第二步：写剧本】按照模板编写漫剧脚本（剧本模板在群文件中）\n【第三步：AI 生图】使用 AI 工具生成角色和场景图片\n【第四步：配音】使用配音工具为角色配音\n【第五步：剪辑】将图片、音频合成为视频\n【第六步：添加字幕】为视频配上字幕\n【第七步：发布】上传到对应平台\n\n每个步骤的详细操作请参考录播课对应章节。',
+                category: 'comic',
+                frequency: 'frequent',
+                author: '系统预置',
+                notes: '新学员最常问的问题之一',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-5',
+                question: '账号被限流/封号了怎么办？',
+                answer: '账号被限流或封号的处理方式：\n\n如果是限流：\n1. 停止发布新内容 24-48 小时\n2. 检查近期发布的内容是否有违规\n3. 清理可能违规的视频\n4. 恢复后先发几个正常的日常内容\n\n如果是封号：\n1. 打开 APP，查看封号原因\n2. 如果是误封，点击"申诉"提交证明材料\n3. 申诉通常需要 3-5 个工作日处理\n4. 如果申诉不通过，建议重新注册新号\n\n⚠️ 预防措施：不要频繁切换 IP、不要大量关注/取关、不要发布违规内容。',
+                category: 'account',
+                frequency: 'frequent',
+                author: '系统预置',
+                notes: '',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-6',
+                question: 'AI 生成的图片质量不好/不像人怎么办？',
+                answer: '提升 AI 生图质量的技巧：\n\n1. 提示词要具体：描述清楚人物特征（性别、年龄、发型、服装等）\n2. 使用参考图：上传一张风格参考图，AI 生成的会更接近\n3. 多生成几次：同一个提示词多试几次，选最好的\n4. 调整参数：适当调高图片分辨率和质量参数\n5. 后期修图：用修图工具微调细节\n\n详细技巧请查看录播课"AI 生图进阶"章节。',
+                category: 'comic',
+                frequency: 'frequent',
+                author: '系统预置',
+                notes: '',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-7',
+                question: '录播课在哪里看？',
+                answer: '录播课观看方式：\n1. 登录学习平台（账号密码在报名时已发送到你的手机）\n2. 进入"我的课程"\n3. 选择对应的课程包\n4. 按章节顺序学习\n\n如果忘记密码，可以点击"忘记密码"通过手机号重置。\n\n⚠️ 如果没有收到账号信息，请私信班主任。',
+                category: 'other',
+                frequency: 'very-frequent',
+                author: '系统预置',
+                notes: '几乎每个新学员都会问',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'default-8',
+                question: 'TK 店铺没有流量/出单怎么办？',
+                answer: '提升店铺流量的方法：\n\n1. 优化商品标题和主图\n2. 保持稳定的上新频率（建议每天 3-5 个新品）\n3. 做好商品定价策略\n4. 利用短视频引流到店铺\n5. 关注平台活动，积极参加\n\n关于出单：\n1. 新店通常需要 1-2 周的冷启动期\n2. 检查商品是否有竞争力（价格、评价、图片）\n3. 可以适当投一些推广\n\n💡 提示：坚持上新和优化是关键，不要因为短期内没出单就放弃。',
+                category: 'tk',
+                frequency: 'frequent',
+                author: '系统预置',
+                notes: '',
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        function getData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            // Initialize with default knowledge
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultKnowledge));
+            return [...defaultKnowledge];
+        }
+
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateStats();
+        }
+
+        // ==================== Page Navigation ====================
+        function switchPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (page === 'knowledge') renderKnowledge();
+            if (page === 'stats') renderStats();
+        }
+
+        // ==================== Submit Form ====================
+        function handleSubmit(e) {
+            e.preventDefault();
+            
+            const data = getData();
+            const entry = {
+                id: 'entry-' + Date.now(),
+                question: document.getElementById('question').value.trim(),
+                answer: document.getElementById('answer').value.trim(),
+                category: document.getElementById('category').value,
+                frequency: document.getElementById('frequency').value,
+                author: document.getElementById('author').value.trim() || '匿名',
+                notes: document.getElementById('notes').value.trim(),
+                createdAt: new Date().toISOString()
+            };
+            
+            data.unshift(entry);
+            saveData(data);
+            
+            document.getElementById('submitForm').reset();
+            showToast('✅ 提交成功！感谢你的贡献，又帮团队减少了一个重复问题！', 'success');
+        }
+
+        // ==================== AI Chat ====================
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const question = input.value.trim();
+            if (!question) return;
+            
+            input.value = '';
+            
+            const messagesEl = document.getElementById('chatMessages');
+            
+            // Add user message
+            messagesEl.innerHTML += `<div class="message message-user">${escapeHtml(question)}<div class="meta">${getTimeStr()}</div></div>`;
+            
+            // Add typing indicator
+            messagesEl.innerHTML += `<div class="typing-indicator" id="typing"><span></span><span></span><span></span></div>`;
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                const typingEl = document.getElementById('typing');
+                if (typingEl) typingEl.remove();
+                
+                const answer = findAnswer(question);
+                
+                messagesEl.innerHTML += `
+                    <div class="message message-ai">
+                        ${formatAnswer(answer.text)}
+                        <button class="copy-btn" onclick="copyToClipboard(this, \`${escapeForAttr(answer.text)}\`)">📋 复制回答</button>
+                        <div class="meta">${answer.source ? '📚 匹配到知识库' : '💡 基于通用知识生成'} · ${getTimeStr()}</div>
+                    </div>
+                `;
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+                
+                // Save to history
+                saveChatHistory(question, answer.text);
+            }, 800 + Math.random() * 700);
+        }
+
+        function findAnswer(question) {
+            const data = getData();
+            const q = question.toLowerCase();
+            
+            // Keyword matching with scoring
+            let bestMatch = null;
+            let bestScore = 0;
+            
+            for (const entry of data) {
+                const entryQ = entry.question.toLowerCase();
+                const entryA = entry.answer.toLowerCase();
+                
+                let score = 0;
+                
+                // Exact match
+                if (entryQ === q) score += 100;
+                
+                // Contains match
+                if (entryQ.includes(q) || q.includes(entryQ)) score += 50;
+                
+                // Keyword overlap
+                const qWords = q.replace(/[？！。，、\s]+/g, ' ').split(' ').filter(w => w.length > 1);
+                const entryWords = entryQ.replace(/[？！。，、\s]+/g, ' ').split(' ').filter(w => w.length > 1);
+                
+                for (const word of qWords) {
+                    if (entryQ.includes(word)) score += 10;
+                    if (entryA.includes(word)) score += 5;
+                }
+                
+                // Category keywords
+                const categoryKeywords = {
+                    'tk': ['tk', 'tiktok', '抖音', '开店', '店铺', '上架', '出单', '选品', '流量'],
+                    'comic': ['漫剧', '剧本', '生图', '配音', '剪辑', '视频', '角色', '场景'],
+                    'software': ['软件', '下载', '安装', '更新', '崩溃', '卡顿', '闪退', '版本'],
+                    'account': ['账号', '登录', '密码', '封号', '限流', '注册', '申诉', '冻结'],
+                    'ai': ['ai', '挂载', '人工智能', '自动', '生成'],
+                    'payment': ['退款', '付款', '收费', '价格', '发票', '合同']
+                };
+                
+                for (const word of qWords) {
+                    for (const catKeywords of Object.values(categoryKeywords)) {
+                        if (catKeywords.includes(word) && entry.category === Object.keys(categoryKeywords).find(k => categoryKeywords[k] === catKeywords)) {
+                            score += 8;
+                        }
+                    }
+                }
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = entry;
+                }
+            }
+            
+            if (bestMatch && bestScore >= 15) {
+                return {
+                    text: bestMatch.answer,
+                    source: true,
+                    match: bestMatch
+                };
+            }
+            
+            // Fallback: generate a helpful response
+            return {
+                text: `抱歉，知识库中暂时没有找到与"${question}"直接匹配的回答。\n\n你可以：\n1. 先查看录播课对应章节是否有相关讲解\n2. 将这个问题提交到"提交问题"页面，后续会补充进知识库\n3. 如果是紧急问题，直接联系交付老师`,
+                source: false
+            };
+        }
+
+        function saveChatHistory(question, answer) {
+            const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+            history.unshift({ question, answer, time: new Date().toISOString() });
+            if (history.length > 50) history.length = 50;
+            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+            renderChatHistory();
+        }
+
+        function renderChatHistory() {
+            const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+            const container = document.getElementById('chatHistory');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="message message-system">暂无历史记录</div>';
+                return;
+            }
+            
+            container.innerHTML = history.map(h => `
+                <div style="margin-bottom: 16px; padding: 10px; background: #F8FAFC; border-radius: 8px; border-left: 3px solid var(--primary);">
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">${h.question}</div>
+                    <div style="font-size: 14px; white-space: pre-wrap; max-height: 80px; overflow: hidden; cursor: pointer;" onclick="copyToClipboard(this, \`${escapeForAttr(h.answer)}\`)" title="点击复制回答">${h.answer.substring(0, 150)}${h.answer.length > 150 ? '...' : ''}</div>
+                    <div style="font-size: 11px; color: #94A3B8; margin-top: 4px;">${new Date(h.time).toLocaleString('zh-CN')}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearChatHistory() {
+            localStorage.removeItem(CHAT_HISTORY_KEY);
+            document.getElementById('chatHistory').innerHTML = '<div class="message message-system">历史记录已清空</div>';
+            showToast('🗑️ 历史记录已清空');
+        }
+
+        // ==================== Knowledge Base ====================
+        let currentCategory = 'all';
+
+        function renderKnowledge() {
+            const data = getData();
+            const search = document.getElementById('kbSearch')?.value.toLowerCase() || '';
+            
+            const filtered = data.filter(item => {
+                const matchCategory = currentCategory === 'all' || item.category === currentCategory;
+                const matchSearch = !search || 
+                    item.question.toLowerCase().includes(search) || 
+                    item.answer.toLowerCase().includes(search);
+                return matchCategory && matchSearch;
+            });
+            
+            const tbody = document.getElementById('kbTableBody');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span>📭</span>暂无数据，快去提交第一个问题吧！</div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(item => `
+                <tr>
+                    <td style="font-weight: 500;">${escapeHtml(item.question)}</td>
+                    <td style="color: var(--text-secondary); white-space: pre-wrap; max-height: 80px; overflow: hidden;">${escapeHtml(item.answer.substring(0, 200))}${item.answer.length > 200 ? '...' : ''}</td>
+                    <td><span class="badge badge-${item.category}">${categoryNames[item.category] || item.category}</span></td>
+                    <td>${frequencyNames[item.frequency] || item.frequency}</td>
+                    <td style="font-size: 13px;">${escapeHtml(item.author)}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteEntry('${item.id}')" title="删除">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterKnowledge() {
+            renderKnowledge();
+        }
+
+        function filterByCategory(category, btn) {
+            currentCategory = category;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderKnowledge();
+        }
+
+        function deleteEntry(id) {
+            if (!confirm('确定要删除这条知识吗？')) return;
+            const data = getData().filter(item => item.id !== id);
+            saveData(data);
+            renderKnowledge();
+            showToast('🗑️ 已删除');
+        }
+
+        function exportKnowledge() {
+            const data = getData();
+            let csv = '\uFEFF问题,标准回答,分类,频率,提交人,备注,提交时间\n';
+            data.forEach(item => {
+                csv += `"${item.question.replace(/"/g, '""')}","${item.answer.replace(/"/g, '""')}","${categoryNames[item.category]}","${frequencyNames[item.frequency]}","${item.author}","${item.notes || ''}","${new Date(item.createdAt).toLocaleString('zh-CN')}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `知识库导出_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.csv`;
+            link.click();
+            showToast('📥 导出成功！');
+        }
+
+        // ==================== Stats ====================
+        function renderStats() {
+            const data = getData();
+            const now = new Date();
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            
+            const weekNew = data.filter(item => new Date(item.createdAt) > weekAgo).length;
+            const authors = [...new Set(data.map(item => item.author))];
+            const highFreq = data.filter(item => item.frequency === 'very-frequent').length;
+            
+            document.getElementById('statTotal').textContent = data.length;
+            document.getElementById('statWeekNew').textContent = weekNew;
+            document.getElementById('statContributors').textContent = authors.length;
+            document.getElementById('statHighFreq').textContent = highFreq;
+            
+            // Category distribution
+            const categories = {};
+            data.forEach(item => {
+                const cat = categoryNames[item.category] || item.category;
+                categories[cat] = (categories[cat] || 0) + 1;
+            });
+            
+            const colors = ['#4F46E5', '#EC4899', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#64748B'];
+            const chartEl = document.getElementById('categoryChart');
+            chartEl.innerHTML = Object.entries(categories).map(([cat, count], i) => `
+                <div style="flex: 1; min-width: 100px; background: ${colors[i % colors.length]}10; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid ${colors[i % colors.length]}30;">
+                    <div style="font-size: 24px; font-weight: 700; color: ${colors[i % colors.length]};">${count}</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${cat}</div>
+                </div>
+            `).join('');
+            
+            // Contributor ranking
+            const contributorCount = {};
+            data.forEach(item => {
+                contributorCount[item.author] = (contributorCount[item.author] || 0) + 1;
+            });
+            
+            const sorted = Object.entries(contributorCount).sort((a, b) => b[1] - a[1]);
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            document.getElementById('contributorList').innerHTML = sorted.map(([name, count], i) => `
+                <div style="display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #F1F5F9;">
+                    <span style="width: 30px; font-size: 18px;">${i < 3 ? medals[i] : (i + 1)}</span>
+                    <span style="flex: 1; font-weight: 500;">${escapeHtml(name)}</span>
+                    <span style="color: var(--primary); font-weight: 600;">${count} 条</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const data = getData();
+            const now = new Date();
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            const weekNew = data.filter(item => new Date(item.createdAt) > weekAgo).length;
+            
+            document.getElementById('navTotal').textContent = data.length;
+            document.getElementById('navWeekNew').textContent = weekNew;
+        }
+
+        // ==================== Utilities ====================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function escapeForAttr(text) {
+            return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/\n/g, '\\n');
+        }
+
+        function formatAnswer(text) {
+            return text.replace(/\n/g, '<br>');
+        }
+
+        function getTimeStr() {
+            return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function copyToClipboard(btn, text) {
+            // Unescape the text
+            const unescaped = text.replace(/\\n/g, '\n').replace(/\\\\/g, '\\').replace(/\\`/g, '`').replace(/\\\$/g, '$');
+            navigator.clipboard.writeText(unescaped).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = '✅ 已复制！';
+                setTimeout(() => btn.textContent = originalText, 1500);
+            }).catch(() => {
+                // Fallback for non-HTTPS
+                const textarea = document.createElement('textarea');
+                textarea.value = unescaped;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                const originalText = btn.textContent;
+                btn.textContent = '✅ 已复制！';
+                setTimeout(() => btn.textContent = originalText, 1500);
+            });
+        }
+
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type ? ' ' + type : '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        // ==================== Init ====================
+        updateStats();
+        renderChatHistory();
+    </script>
+</body>
+</html>
+>>>>>>> 77c99caeb74ed59a0756057e0d31bd7f715544f1

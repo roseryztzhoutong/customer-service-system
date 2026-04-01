@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "builds": [
     {
@@ -6,3 +7,13 @@
     }
   ]
 }
+=======
+{
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@netlify/html"
+    }
+  ]
+}
+>>>>>>> 77c99caeb74ed59a0756057e0d31bd7f715544f1
