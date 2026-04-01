@@ -825,6 +825,9 @@
         const GITHUB_USERNAME = 'roseryztzhoutong';
         const GITHUB_REPO = 'customer-service-system';
         const GITHUB_TOKEN = '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';
+        
+        // 调试模式 - 在控制台查看详细错误
+        const DEBUG = true;
         const DATA_PATH = 'data/knowledge-base.json';
         
         // GitHub API 基础 URL
@@ -862,10 +865,12 @@
                 // 从 GitHub API 获取数据（需要 Token 才能读取私有内容）
                 const response = await fetch(`${GITHUB_API_BASE}/contents/${DATA_PATH}`, {
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
+                
+                if (DEBUG) console.log('GitHub API 响应状态:', response.status);
                 
                 if (response.ok) {
                     const fileData = await response.json();
@@ -919,7 +924,7 @@
                 // 先获取最新的 sha（防止并发冲突）
                 const getResponse = await fetch(`${GITHUB_API_BASE}/contents/${DATA_PATH}`, {
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
@@ -934,7 +939,7 @@
                 const updateResponse = await fetch(`${GITHUB_API_BASE}/contents/${DATA_PATH}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
@@ -1180,7 +1185,7 @@
                 const response = await fetch(`${GITHUB_API_BASE}/contents/${DATA_PATH}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
