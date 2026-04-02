@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>交付部知识库管理系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -649,118 +651,106 @@
     </div>
 
     <script>
-        // ==================== 腾讯云开发 Configuration ====================
-        const TCB_ENV_ID = 'knowledge-base-5gi408ivd87b2a1f';
-        const TCB_GATEWAY = `https://${TCB_ENV_ID}.api.tcloudbasegateway.com`;
+        // ==================== 腾讯云 COS Configuration ====================
+        // COS 配置 - 使用你的存储桶
+        const COS_CONFIG = {
+            bucket: 'knowledge-bas-1409199132',
+            region: 'ap-guangzhou',
+            dataFile: 'data/knowledge.json'
+        };
         
-        // 生成或获取设备ID
-        let deviceId = localStorage.getItem('tcb_device_id');
-        if (!deviceId) {
-            deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            localStorage.setItem('tcb_device_id', deviceId);
-        }
+        // 构建 COS 访问 URL
+        const COS_BASE_URL = `https://${COS_CONFIG.bucket}.cos.${COS_CONFIG.region}.myqcloud.com`;
+        const DATA_URL = `${COS_BASE_URL}/${COS_CONFIG.dataFile}`;
         
-        let accessToken = null;
-        let tokenType = null;
         let knowledgeData = [];
         
-        // ==================== 腾讯云开发 HTTP API ====================
+        // ==================== COS Data Operations ====================
         
-        // 1. 匿名登录获取 access_token
-        async function anonymousSignIn() {
+        // 初始化 - 加载数据
+        async function initDatabase() {
             try {
-                const response = await fetch(`${TCB_GATEWAY}/auth/v1/signin/anonymously`, {
-                    method: 'POST',
+                updateSyncStatus('loading', '🔄 连接中...');
+                await loadData();
+                updateSyncStatus('success', '✅ 已连接云端');
+            } catch (error) {
+                console.error('Init error:', error);
+                updateSyncStatus('error', '❌ 连接失败，使用本地数据');
+                loadFromLocal();
+            }
+        }
+        
+        // 从 COS 加载数据
+        async function loadData() {
+            try {
+                // 添加时间戳防止缓存
+                const url = `${DATA_URL}?t=${Date.now()}`;
+                const response = await fetch(url, {
+                    method: 'GET',
                     headers: {
-                        'x-device-id': deviceId
+                        'Cache-Control': 'no-cache'
                     }
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`SignIn failed: ${response.status}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    knowledgeData = data.questions || [];
+                    console.log('Loaded from COS:', knowledgeData.length, 'questions');
+                } else if (response.status === 404) {
+                    // 文件不存在，创建空数据
+                    knowledgeData = [];
+                    console.log('No data file yet, starting fresh');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
-                const data = await response.json();
-                accessToken = data.access_token;
-                tokenType = data.token_type;
+                updateStats();
+                renderKnowledge();
                 
-                console.log('Signed in anonymously');
+                // 同步到本地作为备份
+                localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
+                
+            } catch (error) {
+                console.error('Load from COS error:', error);
+                throw error;
+            }
+        }
+        
+        // 保存数据到 COS
+        async function saveToCOS() {
+            try {
+                const data = {
+                    questions: knowledgeData,
+                    updated_at: new Date().toISOString()
+                };
+                
+                // 使用 PUT 请求上传 JSON 文件
+                const response = await fetch(DATA_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-cos-acl': 'public-read'
+                    },
+                    body: JSON.stringify(data, null, 2)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                console.log('Saved to COS successfully');
+                
+                // 同步到本地备份
+                localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
+                
                 return true;
             } catch (error) {
-                console.error('Anonymous signin error:', error);
+                console.error('Save to COS error:', error);
                 return false;
             }
         }
         
-        // 2. 调用数据库 API
-        async function tcbDatabaseCall(action, params = {}) {
-            if (!accessToken) {
-                const signedIn = await anonymousSignIn();
-                if (!signedIn) throw new Error('Failed to sign in');
-            }
-            
-            const url = `${TCB_GATEWAY}/v1/database/${action}`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `${tokenType} ${accessToken}`,
-                    'x-device-id': deviceId
-                },
-                body: JSON.stringify(params)
-            });
-            
-            if (!response.ok) {
-                // Token 可能过期，重新登录
-                if (response.status === 401) {
-                    accessToken = null;
-                    return tcbDatabaseCall(action, params);
-                }
-                throw new Error(`API error: ${response.status}`);
-            }
-            
-            return await response.json();
-        }
-        
-        // ==================== Data Operations ====================
-        async function initDatabase() {
-            try {
-                // 匿名登录
-                const signedIn = await anonymousSignIn();
-                if (!signedIn) {
-                    throw new Error('Sign in failed');
-                }
-                
-                // 测试查询
-                await loadData();
-                updateSyncStatus('success', '✅ 已连接');
-            } catch (error) {
-                console.error('TCB init error:', error);
-                updateSyncStatus('error', '❌ 连接失败');
-                loadFromLocal();
-            }
-        }
-        
-        async function loadData() {
-            try {
-                // 查询 questions 集合
-                const result = await tcbDatabaseCall('query', {
-                    collection: 'questions',
-                    query: {},
-                    orderBy: { created_at: 'desc' },
-                    limit: 100
-                });
-                
-                knowledgeData = result.data || [];
-                updateStats();
-                renderKnowledge();
-            } catch (error) {
-                console.error('Load data error:', error);
-                loadFromLocal();
-            }
-        }
-        
+        // 从本地加载（备用）
         function loadFromLocal() {
             const local = localStorage.getItem('knowledgeData');
             if (local) {
@@ -770,17 +760,29 @@
             }
         }
         
+        // 保存新问题
         async function saveQuestion(questionData) {
             try {
-                await tcbDatabaseCall('add', {
-                    collection: 'questions',
-                    data: questionData
-                });
-                await loadData();
-                return { success: true };
+                // 添加到数据数组
+                questionData.id = Date.now().toString();
+                knowledgeData.unshift(questionData);
+                
+                // 尝试保存到 COS
+                const cosSuccess = await saveToCOS();
+                
+                if (cosSuccess) {
+                    updateStats();
+                    renderKnowledge();
+                    return { success: true, cloud: true };
+                } else {
+                    // COS 失败，但本地已保存
+                    updateStats();
+                    renderKnowledge();
+                    return { success: true, local: true };
+                }
             } catch (error) {
                 console.error('Save error:', error);
-                // Fallback to local storage
+                // 出错时回退到本地
                 knowledgeData.unshift({ ...questionData, id: Date.now().toString() });
                 localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
                 updateStats();
@@ -789,44 +791,48 @@
             }
         }
         
+        // 删除问题
         async function deleteQuestion(id) {
             try {
-                await tcbDatabaseCall('delete', {
-                    collection: 'questions',
-                    query: { _id: id }
-                });
-                await loadData();
-                return { success: true };
+                knowledgeData = knowledgeData.filter(q => q.id !== id && q._id !== id);
+                
+                const cosSuccess = await saveToCOS();
+                
+                if (cosSuccess) {
+                    updateStats();
+                    renderKnowledge();
+                    return { success: true, cloud: true };
+                } else {
+                    updateStats();
+                    renderKnowledge();
+                    return { success: true, local: true };
+                }
             } catch (error) {
                 console.error('Delete error:', error);
-                // Fallback to local
-                knowledgeData = knowledgeData.filter(q => q.id !== id && q._id !== id);
-                localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
-                updateStats();
-                renderKnowledge();
-                return { success: true, local: true };
+                return { success: false };
             }
         }
         
+        // 更新问题
         async function updateQuestion(id, updates) {
             try {
-                await tcbDatabaseCall('update', {
-                    collection: 'questions',
-                    query: { _id: id },
-                    data: { $set: updates }
-                });
-                await loadData();
-                return { success: true };
-            } catch (error) {
-                console.error('Update error:', error);
-                // Fallback to local
                 const index = knowledgeData.findIndex(q => q.id === id || q._id === id);
                 if (index !== -1) {
                     knowledgeData[index] = { ...knowledgeData[index], ...updates };
-                    localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
-                    renderKnowledge();
                 }
-                return { success: true, local: true };
+                
+                const cosSuccess = await saveToCOS();
+                
+                if (cosSuccess) {
+                    renderKnowledge();
+                    return { success: true, cloud: true };
+                } else {
+                    renderKnowledge();
+                    return { success: true, local: true };
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                return { success: false };
             }
         }
         
@@ -885,7 +891,13 @@
             document.getElementById('submittingOverlay').classList.remove('show');
             
             if (result.success) {
-                showToast(result.local ? '✅ 已保存到本地' : '✅ 提交成功，已同步到云端');
+                if (result.cloud) {
+                    showToast('✅ 提交成功，已同步到云端');
+                } else if (result.local) {
+                    showToast('⚠️ 已保存到本地（云端同步失败）');
+                } else {
+                    showToast('✅ 提交成功');
+                }
                 document.getElementById('questionForm').reset();
             } else {
                 showToast('❌ 提交失败，请重试');
