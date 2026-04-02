@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>交付部知识库管理系统</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -443,6 +442,7 @@
             border-radius: 12px;
             font-size: 14px;
             line-height: 1.6;
+            white-space: pre-line;
         }
         
         .chat-message.ai .chat-content {
@@ -649,54 +649,110 @@
     </div>
 
     <script>
-        // ==================== Supabase Configuration ====================
-        const SUPABASE_URL = 'https://dgdnttgfjcxmrqeqtogk.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_rX4Vfv2SkEISeMc_m1BwBg_BNQL8I7A';
+        // ==================== 腾讯云开发 Configuration ====================
+        const TCB_ENV_ID = 'knowledge-base-5gi408ivd87b2a1f';
+        const TCB_GATEWAY = `https://${TCB_ENV_ID}.api.tcloudbasegateway.com`;
         
-        let supabase = null;
+        // 生成或获取设备ID
+        let deviceId = localStorage.getItem('tcb_device_id');
+        if (!deviceId) {
+            deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('tcb_device_id', deviceId);
+        }
+        
+        let accessToken = null;
+        let tokenType = null;
         let knowledgeData = [];
         
-        // Initialize Supabase
-        async function initSupabase() {
+        // ==================== 腾讯云开发 HTTP API ====================
+        
+        // 1. 匿名登录获取 access_token
+        async function anonymousSignIn() {
             try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const response = await fetch(`${TCB_GATEWAY}/auth/v1/signin/anonymously`, {
+                    method: 'POST',
+                    headers: {
+                        'x-device-id': deviceId
+                    }
+                });
                 
-                // Check connection and create table if needed
-                const { data, error } = await supabase.from('questions').select('count');
-                
-                if (error && error.code === '42P01') {
-                    // Table doesn't exist, create it
-                    await createTable();
+                if (!response.ok) {
+                    throw new Error(`SignIn failed: ${response.status}`);
                 }
                 
-                updateSyncStatus('success', '✅ 已连接');
-                await loadData();
+                const data = await response.json();
+                accessToken = data.access_token;
+                tokenType = data.token_type;
+                
+                console.log('Signed in anonymously');
+                return true;
             } catch (error) {
-                console.error('Supabase init error:', error);
+                console.error('Anonymous signin error:', error);
+                return false;
+            }
+        }
+        
+        // 2. 调用数据库 API
+        async function tcbDatabaseCall(action, params = {}) {
+            if (!accessToken) {
+                const signedIn = await anonymousSignIn();
+                if (!signedIn) throw new Error('Failed to sign in');
+            }
+            
+            const url = `${TCB_GATEWAY}/v1/database/${action}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${tokenType} ${accessToken}`,
+                    'x-device-id': deviceId
+                },
+                body: JSON.stringify(params)
+            });
+            
+            if (!response.ok) {
+                // Token 可能过期，重新登录
+                if (response.status === 401) {
+                    accessToken = null;
+                    return tcbDatabaseCall(action, params);
+                }
+                throw new Error(`API error: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+        
+        // ==================== Data Operations ====================
+        async function initDatabase() {
+            try {
+                // 匿名登录
+                const signedIn = await anonymousSignIn();
+                if (!signedIn) {
+                    throw new Error('Sign in failed');
+                }
+                
+                // 测试查询
+                await loadData();
+                updateSyncStatus('success', '✅ 已连接');
+            } catch (error) {
+                console.error('TCB init error:', error);
                 updateSyncStatus('error', '❌ 连接失败');
-                // Fallback to local storage
                 loadFromLocal();
             }
         }
         
-        // Create table using RPC or direct SQL (if allowed)
-        async function createTable() {
-            // For now, we'll handle this by inserting a test record
-            // The table should be created manually in Supabase dashboard
-            console.log('Table may not exist, please create it in Supabase dashboard');
-        }
-        
-        // ==================== Data Operations ====================
         async function loadData() {
             try {
-                const { data, error } = await supabase
-                    .from('questions')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                // 查询 questions 集合
+                const result = await tcbDatabaseCall('query', {
+                    collection: 'questions',
+                    query: {},
+                    orderBy: { created_at: 'desc' },
+                    limit: 100
+                });
                 
-                if (error) throw error;
-                
-                knowledgeData = data || [];
+                knowledgeData = result.data || [];
                 updateStats();
                 renderKnowledge();
             } catch (error) {
@@ -716,20 +772,16 @@
         
         async function saveQuestion(questionData) {
             try {
-                const { data, error } = await supabase
-                    .from('questions')
-                    .insert([questionData])
-                    .select();
-                
-                if (error) throw error;
-                
-                // Reload data
+                await tcbDatabaseCall('add', {
+                    collection: 'questions',
+                    data: questionData
+                });
                 await loadData();
                 return { success: true };
             } catch (error) {
                 console.error('Save error:', error);
                 // Fallback to local storage
-                knowledgeData.unshift({ ...questionData, id: Date.now() });
+                knowledgeData.unshift({ ...questionData, id: Date.now().toString() });
                 localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
                 updateStats();
                 renderKnowledge();
@@ -739,22 +791,41 @@
         
         async function deleteQuestion(id) {
             try {
-                const { error } = await supabase
-                    .from('questions')
-                    .delete()
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
+                await tcbDatabaseCall('delete', {
+                    collection: 'questions',
+                    query: { _id: id }
+                });
                 await loadData();
                 return { success: true };
             } catch (error) {
                 console.error('Delete error:', error);
                 // Fallback to local
-                knowledgeData = knowledgeData.filter(q => q.id !== id);
+                knowledgeData = knowledgeData.filter(q => q.id !== id && q._id !== id);
                 localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
                 updateStats();
                 renderKnowledge();
+                return { success: true, local: true };
+            }
+        }
+        
+        async function updateQuestion(id, updates) {
+            try {
+                await tcbDatabaseCall('update', {
+                    collection: 'questions',
+                    query: { _id: id },
+                    data: { $set: updates }
+                });
+                await loadData();
+                return { success: true };
+            } catch (error) {
+                console.error('Update error:', error);
+                // Fallback to local
+                const index = knowledgeData.findIndex(q => q.id === id || q._id === id);
+                if (index !== -1) {
+                    knowledgeData[index] = { ...knowledgeData[index], ...updates };
+                    localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
+                    renderKnowledge();
+                }
                 return { success: true, local: true };
             }
         }
@@ -829,8 +900,8 @@
             let filtered = knowledgeData;
             if (searchTerm) {
                 filtered = knowledgeData.filter(q => 
-                    q.title.toLowerCase().includes(searchTerm) ||
-                    q.detail.toLowerCase().includes(searchTerm)
+                    (q.title && q.title.toLowerCase().includes(searchTerm)) ||
+                    (q.detail && q.detail.toLowerCase().includes(searchTerm))
                 );
             }
             
@@ -844,9 +915,11 @@
                 return;
             }
             
-            container.innerHTML = filtered.map((q, index) => `
-                <div class="faq-item" id="faq-${q.id}">
-                    <div class="faq-header" onclick="toggleFaq(${q.id})">
+            container.innerHTML = filtered.map((q, index) => {
+                const id = q._id || q.id;
+                return `
+                <div class="faq-item" id="faq-${id}">
+                    <div class="faq-header" onclick="toggleFaq('${id}')">
                         <span class="faq-category ${q.category}">${getCategoryName(q.category)}</span>
                         <span class="faq-question">${escapeHtml(q.title)}</span>
                         <span class="faq-toggle">▼</span>
@@ -862,12 +935,12 @@
                             <span>📅 ${new Date(q.created_at).toLocaleDateString('zh-CN')}</span>
                         </div>
                         <div class="faq-actions">
-                            <button class="btn btn-secondary btn-small" onclick="editAnswer(${q.id})">✏️ 编辑解答</button>
-                            <button class="btn btn-danger btn-small" onclick="deleteQuestionHandler(${q.id})">🗑️ 删除</button>
+                            <button class="btn btn-secondary btn-small" onclick="editAnswer('${id}')">✏️ 编辑解答</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteQuestionHandler('${id}')">🗑️ 删除</button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         function toggleFaq(id) {
@@ -898,25 +971,18 @@
             }
         }
         
-        function editAnswer(id) {
-            const q = knowledgeData.find(item => item.id === id);
+        async function editAnswer(id) {
+            const q = knowledgeData.find(item => item.id === id || item._id === id);
             if (!q) return;
             
             const answer = prompt('请输入解答内容：', q.answer || '');
             if (answer === null) return;
             
-            q.answer = answer;
-            
-            // Update in Supabase or local
-            if (supabase) {
-                supabase.from('questions').update({ answer }).eq('id', id).then(() => {
-                    renderKnowledge();
-                    showToast('✅ 解答已更新');
-                });
-            } else {
-                localStorage.setItem('knowledgeData', JSON.stringify(knowledgeData));
-                renderKnowledge();
+            const result = await updateQuestion(id, { answer });
+            if (result.success) {
                 showToast('✅ 解答已更新');
+            } else {
+                showToast('❌ 更新失败');
             }
         }
         
@@ -966,7 +1032,7 @@
             
             // Search in knowledge base
             for (const item of knowledgeData) {
-                if (item.title.toLowerCase().includes(q) || item.detail.toLowerCase().includes(q)) {
+                if (item.title && item.title.toLowerCase().includes(q)) {
                     if (item.answer) {
                         return `找到相关问题：\n\n${item.title}\n\n${item.answer}`;
                     }
@@ -988,7 +1054,7 @@
         
         // ==================== Initialize ====================
         document.addEventListener('DOMContentLoaded', function() {
-            initSupabase();
+            initDatabase();
         });
     </script>
 </body>
